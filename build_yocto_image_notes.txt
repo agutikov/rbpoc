@@ -5,6 +5,9 @@
 Creating a Custom Linux Kernel for the Edison
 	http://shawnhymel.com/585/creating-a-custom-linux-kernel-for-the-edison/
 
+http://www.intel.com/support/maker/edison.htm#documents
+	edisonbsp_ug_331188005.pdf
+
 edison-src-ww05-15.tgz:
 	https://downloadcenter.intel.com/download/24698/Intel-Edison-OS-image-and-source-files
 
@@ -55,6 +58,59 @@ ERROR: Task 340 (/home/user/work/edison/edison-src/poky/meta/recipes-connectivit
 
 опять вернулся к последнему - перл уже соберётся, посмотрим на wpa_supplicant
 	edison-src-ww05-15.tgz
+
+та-же херня
+
+./poky/meta/recipes-connectivity/wpa-supplicant
+./device-software/meta-edison-distro/recipes-connectivity/wpa_supplicant/
+
+ИЗМЕНЕНИЯ:
+./device-software/meta-edison-distro/recipes-connectivity/wpa_supplicant/wpa-supplicant_2.1.bbappend
+в переменную BASE_SRC_URI добавить патч fix-libnl3-host-contamination.patch
+непонятно почему в ./poky/meta/recipes-connectivity/wpa-supplicant/wpa-supplicant.inc
+этот патч есть а тут нет
+
+
+Далее - mosquitto
+
+ERROR: QA Issue: mosquitto: Files/directories were installed but not shipped
+  /usr/lib64
+  /usr/lib64/python2.7
+  /usr/lib64/python2.7/site-packages
+  /usr/lib64/python2.7/site-packages/mosquitto.py
+  /usr/lib64/python2.7/site-packages/mosquitto-1.3.4-py2.7.egg-info
+  /usr/lib64/python2.7/site-packages/mosquitto.pyc
+ERROR: QA run found fatal errors. Please consider fixing them.
+ERROR: Function failed: do_package_qa
+ERROR: Logfile of failure stored in: /home/user/work/edison/edison-src_15/build/tmp/work/core2-32-poky-linux/mosquitto/1.3.4-r0/temp/log.do_package.2819
+ERROR: Task 1081 (/home/user/work/edison/edison-src_15/device-software/meta-edison-middleware/recipes-connectivity/mosquitto/mosquitto_1.3.4.bb, do_package) failed with exit code '1'
+
+
+ERROR: QA Issue: hostapd-daemon: The compile log indicates that host include and/or library paths were used.
+         Please check the log '/home/user/work/edison/edison-src_15/build/tmp/work/core2-32-poky-linux/hostapd-daemon/2.1-r0/temp/log.do_compile' for more information.
+ERROR: QA run found fatal errors. Please consider fixing them.
+ERROR: Function failed: do_package_qa
+ERROR: Logfile of failure stored in: /home/user/work/edison/edison-src_15/build/tmp/work/core2-32-poky-linux/hostapd-daemon/2.1-r0/temp/log.do_package.9772
+ERROR: Task 352 (/home/user/work/edison/edison-src_15/device-software/meta-edison-distro/recipes-connectivity/hostapd/hostapd-daemon_2.1.bb, do_package) failed with exit code '1'
+
+та-же херня что и с wpa-supplicant, но нет патча
+ещё и идиотский конфликт директорий S и src так что патч сам не накладывается - пришлось руками
+
+УРАААААА!!!
+bitbake edison-image successfully finished!!!
+
+
+../device-software/utils/flash/postBuild.sh
+
+cp: cannot stat ‘/home/user/work/edison/edison-src_15/build/tmp/deploy/images/edison/vmlinux’: No such file or directory
+find: `/home/user/work/edison/edison-src_15/u-boot': No such file or directory
+
+непонятно - будет понятно при прошивке
+
+
+bitbake edison-image -c populate_sdk
+
+tmp/deploy/sdk/poky-edison-eglibc-x86_64-edison-image-core2-32-toolchain-1.6.1.sh
 
 
 

@@ -1,0 +1,52 @@
+
+
+
+Живые линки на доки
+	http://www.intel.com/support/maker/edison.htm#documents
+
+Форум - две штуки
+	https://software.intel.com/en-us/forums/internet-of-things
+	https://communities.intel.com/community/makers/edison
+
+Connector Pinout
+	http://www.intel.com/support/edison/sb/CS-035259.htm
+
+
+Downloads
+	http://www.intel.com/support/edison/sb/CS-035180.htm
+
+
+Arduino board ADC - ADS7951
+	http://www.ti.com/product/ADS7951/technicaldocuments
+
+
+Creating a Custom Linux Kernel for the Edison
+	http://shawnhymel.com/585/creating-a-custom-linux-kernel-for-the-edison/
+
+adding kernel modules to Yocto
+	https://software.intel.com/en-us/blogs/2015/02/27/intel-edison-adding-kernel-modules-to-yocto-example-batman
+
+
+Access to Peripherals from Quark MCU
+	https://communities.intel.com/message/268647
+
+
+
+
+
+------------------------------------------
+Bitbake
+
+http://hambedded.org/blog/2012/11/24/from-bitbake-hello-world-to-an-image/
+
+
+
+
+------------------------------------------
+Gentoo
+
+http://gentoo.ed-solutions.de/dokuwiki/start:edison
+
+
+
+

@@ -1,0 +1,5 @@
+
+
+crossdev -S i686-pc-linux-gnu
+
+

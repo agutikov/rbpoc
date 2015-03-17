@@ -1,0 +1,66 @@
+
+
+
+
+Creating a Custom Linux Kernel for the Edison
+	http://shawnhymel.com/585/creating-a-custom-linux-kernel-for-the-edison/
+
+edison-src-ww05-15.tgz:
+	https://downloadcenter.intel.com/download/24698/Intel-Edison-OS-image-and-source-files
+
+ERROR: perl
+
+
+edison-src-rel1-maint-rel1-ww42-14.tgz:
+	https://downloadcenter.intel.com/download/24389
+
+
+tar xvzpf edison-src-rel1-maint-rel1-ww42-14.tgz -C ./
+mkdir bb_downloads
+mkdir bb_sstate
+cd edison-src
+
+./device-software/setup.sh --dl_dir=/home/user/work/edison/bb_downloads/ \
+--sstate_dir=/home/user/work/edison/bb_sstate/ --bb_number_thread=4 --parallel_make=4
+
+source poky/oe-init-build-env
+bitbake edison-image
+
+ERROR:
+		Making x2p stuff
+	make[1]: Entering directory '/home/user/work/edison/edison-src/build/tmp/work/x86_64-linux/perl-native/5.14.3-r0/perl-5.14.3/x2p'
+	You haven't done a "make depend" yet!
+	Makefile:162: recipe for target 'hash.o' failed
+	make[1]: *** [hash.o] Error 1
+	make[1]: Leaving directory '/home/user/work/edison/edison-src/build/tmp/work/x86_64-linux/perl-native/5.14.3-r0/perl-5.14.3/x2p'
+	Makefile:273: recipe for target 'translators' failed
+	make: *** [translators] Error 2
+	ERROR: oe_runmake failed
+	WARNING: /home/user/work/edison/edison-src/build/tmp/work/x86_64-linux/perl-native/5.14.3-r0/temp/run.do_compile.21610:1 exit 1 from
+	exit 1
+	ERROR: Function failed: do_compile (log file is located at /home/user/work/edison/edison-src/build/tmp/work/x86_64-linux/perl-native/5.14.3-r0/temp/log.do_compile.21610)
+
+БЛЯЯЯЯ
+nibbler's_gentoo
+
+
+ERROR: QA Issue: wpa-supplicant: The compile log indicates that host include and/or library paths were used.
+         Please check the log '/home/user/work/edison/edison-src/build/tmp/work/core2-32-poky-linux/wpa-supplicant/2.2-r1/temp/log.do_compile' for more information.
+ERROR: QA run found fatal errors. Please consider fixing them.
+ERROR: Function failed: do_package_qa
+ERROR: Logfile of failure stored in: /home/user/work/edison/edison-src/build/tmp/work/core2-32-poky-linux/wpa-supplicant/2.2-r1/temp/log.do_package.4062
+ERROR: Task 340 (/home/user/work/edison/edison-src/poky/meta/recipes-connectivity/wpa-supplicant/wpa-supplicant_2.1.bb, do_package) failed with exit code '1'
+
+
+
+опять вернулся к последнему - перл уже соберётся, посмотрим на wpa_supplicant
+	edison-src-ww05-15.tgz
+
+
+
+
+
+
+
+
+

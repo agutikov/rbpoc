@@ -1,27 +1,45 @@
 
 
+0) wifi - DONE
+0) tftp - DONE
 
+1) build yocto image and flash it - DONE
 
-1) build yocto image and flash it
-
-2) all existing guides (wifi, bt, ...)
-	загрузчики, bootstrapping
+2) all existing guides 
 	также потрогать API в т.ч. mraa
+
+получить данные из adc и отправить на комп по сети (wifi)
+	http://iotdk.intel.com/docs/master/mraa/
+на компе простенький сервак на python хавает данные и пихает их в базу 
+	https://pypi.python.org/pypi/sqlitedict
+	http://www.binarytides.com/python-socket-server-code-example/
+	https://docs.python.org/2/library/socketserver.html
+и простенький-же гуй на pythob отображает их в виде графиков
+	matplotlib
+
+
 
 все джамперы и кнопки
 all memories and layout
+boot process
 low power sleep mode
 recovery mode with buttons
 interface usb0 ???
 systemctl
 EFI gpt
 opkg - create yocto repo
-nfs
 
 
-3) скачивание доков, копия доков на гугльдрайве
+
+3) NFS, nfsroot
+
+
+3) скачивание доков и переименовывание
+
 
 4) расковырять edison-src, удалить лишнее, разобрать где там что, написать readme, залить в гитхаб рабочий вариант
+	- найти исходники ядра и u-boot
+
 
 5) научиться добавлять в yocto проект из своего git-а
 
@@ -37,6 +55,7 @@ nfs
 	8.5) кросскомпиляция пакетов вручную 
 	8.6) distcc
 
+9) Bluetooth
 
 10) форум:
 	- засабмиттить фиксы сборки, хотябы обсудить
@@ -53,7 +72,9 @@ nfs
 		- подробное описание что где лежит на сайте intel и ссылки на мануалы в блогах
 
 
-
+12) Debug
+	- userspace
+	- kernel
 
 
 

@@ -1,9 +1,4 @@
 
-bio_ed
-root
-12345
-
-
 
 Живые линки на доки
 	http://www.intel.com/support/maker/edison.htm#documents

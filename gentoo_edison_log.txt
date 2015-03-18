@@ -3,3 +3,62 @@
 crossdev -S i686-pc-linux-gnu
 
 
+
+cat /usr/loca/bin/xcross.sh
+	#!/bin/bash
+
+	print ()
+	{
+	eval _a=\$$1
+	echo "$1=$_a"
+	}
+
+	CBUILD="$(portageq envvar CHOST)"
+	export CBUILD
+	print CBUILD
+
+	ROOT="${SYSROOT}"
+	export ROOT
+	print ROOT
+
+	PORTAGE_CONFIGROOT="${SYSROOT}"
+	export PORTAGE_CONFIGROOT
+	print PORTAGE_CONFIGROOT
+
+	$*
+
+export SYSROOT=/usr/i686-pc-linux-gnu
+export ARCH=i686
+
+/usr/local/bin/xcross.sh emerge mtd-utils -av
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

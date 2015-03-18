@@ -1,0 +1,448 @@
+
+
+скачал сначала edison-image-ww05-15.zip
+
+по списку файлов точно повтояет содержимое toFlash после сборки и выполнения скрипта device-software/utils/flash/postBuild.sh
+
+запустил flashall.sh и нажал на RESET на плате
+
+Результат такой - сначала ждал, потом очень быстро высрал этот текст, как будто ничего не делал:
+	Using U-Boot target: edison-blankcdc
+	Now waiting for dfu device 8087:0a99
+	Please plug and reboot the board
+	Flashing IFWI
+	Flashing U-Boot
+	Flashing U-Boot Environment
+	Flashing U-Boot Environment Backup
+	Rebooting to apply partition changes
+	Now waiting for dfu device 8087:0a99
+	Flashing boot partition (kernel)
+	Flashing rootfs, (it can take up to 5 minutes... Please be patient)
+	Rebooting
+	U-boot & Kernel System Flash Success...
+	Your board needs to reboot to complete the flashing procedure, please do not unplug it for 2 minutes.
+
+и после этого невозможно залогиниться и сломалась консоль на девайсе
+
+потом внезапно система на эдисоне опять заработала нормально
+
+
+
+
+lsusb
+
+	FTDI:
+		Bus 004 Device 084: ID 0403:6001 Future Technology Devices International, Ltd FT232 USB-Serial (UART) IC
+
+	сразу после RESET:
+		Bus 004 Device 088: ID 8086:e005 Intel Corp. 
+
+	в процессе загрузки:
+		Bus 004 Device 090: ID 8087:0a99 Intel Corp. 
+
+	загружен linux:
+		Bus 004 Device 087: ID 8087:0a9e Intel Corp. 
+
+
+
+после перезагрузки выполняем в цикле dfu-util -l -d 8087:0a99
+	dfu-util -l -d 8087:0a99
+	dfu-util 0.7
+
+	Copyright 2005-2008 Weston Schmidt, Harald Welte and OpenMoko Inc.
+	Copyright 2010-2012 Tormod Volden and Stefan Schmidt
+	This program is Free Software and has ABSOLUTELY NO WARRANTY
+	Please report bugs to dfu-util@lists.gnumonks.org
+
+	Filter on vendor = 0x8087 product = 0x0a99
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=0, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=1, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=2, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=3, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=4, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=5, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=6, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=7, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=8, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=9, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=10, name="UNDEFINED"
+	Found DFU: [8087:0a99] devnum=0, cfg=1, intf=0, alt=11, name="UNDEFINED"
+
+
+
+ИЗ ПОД РУТА НАДО ЗАПУСКАТЬ БЛЕАТЬ!!!
+
+
+
+============================= Лог на девайсе ===================================
+
+
+******************************
+PSH KERNEL VERSION: b0182727
+                WR: 20104000
+******************************
+
+SCU IPC: 0x800000d0  0xfffce92c
+
+PSH miaHOB version: TNG.B0.VVBD.0000000c
+
+microkernel built 23:15:13 Apr 24 2014
+
+******* PSH loader *******
+PCM page cache size = 192 KB 
+Cache Constraint = 0 Pages
+Arming IPC driver ..
+Adding page store pool ..
+PagestoreAddr(IMR Start Address) = 0x04899000
+pageStoreSize(IMR Size)          = 0x00080000
+
+*** Ready to receive application *** 
+
+
+U-Boot 2014.04 (Aug 20 2014 - 16:08:32)
+
+       Watchdog enabled
+DRAM:  980.6 MiB
+MMC:   tangier_sdhci: 0
+In:    serial
+Out:   serial
+Err:   serial
+Hit any key to stop autoboot:  0 
+Target:blank
+Partitioning already done...
+Flashing already done...
+GADGET DRIVER: usb_dnl_dfu
+#
+DFU complete CRC32: 0xd0a55b68
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+#
+DFU complete CRC32: 0xd0a55b68
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+#
+DFU complete CRC32: 0xda7f0504
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+#
+DFU complete CRC32: 0xf9484cbb
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+#
+DFU complete CRC32: 0xf9484cbb
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+resetting ...
+
+
+******************************
+PSH KERNEL VERSION: b0182929
+                WR: 20104000
+******************************
+
+SCU IPC: 0x800000d0  0xfffce92c
+
+PSH miaHOB version: TNG.B0.VVBD.0000000c
+
+microkernel built 10:14:01 Jan 13 2015
+
+******* PSH loader *******
+PCM page cache size = 192 KB 
+Cache Constraint = 0 Pages
+Arming IPC driver ..
+Adding page store pool ..
+PagestoreAddr(IMR Start Address) = 0x04899000
+pageStoreSize(IMR Size)          = 0x00080000
+
+*** Ready to receive application *** 
+
+
+U-Boot 2014.04 (Jan 30 2015 - 14:15:53)
+
+       Watchdog enabled
+DRAM:  980.6 MiB
+MMC:   tangier_sdhci: 0
+In:    serial
+Out:   serial
+Err:   serial
+Writing to redundant MMC(0)... done
+Writing to MMC(0)... done
+Hit any key to stop autoboot:  0 
+Target:blank
+Partitioning using GPT
+Writing GPT: success!
+Saving Environment to MMC...
+Writing to redundant MMC(0)... done
+Flashing already done...
+GADGET DRIVER: usb_dnl_dfu
+#
+DFU complete CRC32: 0x0c86537f
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+################################################################
+DFU complete CRC32: 0x55698f09
+DOWNLOAD ... OK
+Ctrl+C to exit ...
+resetting ...
+
+
+******************************
+PSH KERNEL VERSION: b0182929
+                WR: 20104000
+******************************
+
+SCU IPC: 0x800000d0  0xfffce92c
+
+PSH miaHOB version: TNG.B0.VVBD.0000000c
+
+microkernel built 10:14:01 Jan 13 2015
+
+******* PSH loader *******
+PCM page cache size = 192 KB 
+Cache Constraint = 0 Pages
+Arming IPC driver ..
+Adding page store pool ..
+PagestoreAddr(IMR Start Address) = 0x04899000
+pageStoreSize(IMR Size)          = 0x00080000
+
+*** Ready to receive application *** 
+
+
+U-Boot 2014.04 (Jan 30 2015 - 14:15:53)
+
+       Watchdog enabled
+DRAM:  980.6 MiB
+MMC:   tangier_sdhci: 0
+In:    serial
+Out:   serial
+Err:   serial
+Hit any key to stop autoboot:  0 
+Target:blank
+Partitioning already done...
+Flashing already done...
+GADGET DRIVER: usb_dnl_dfu
+reading vmlinuz
+5348960 bytes read in 132 ms (38.6 MiB/s)
+Valid Boot Flag
+Setup Size = 0x00003c00
+Magic signature found
+Using boot protocol version 2.0c
+Linux kernel version 3.10.17-poky-edison+ (sys_dswci@tlsndgbuild004) #1 SMP PRE5
+Building boot_params at 0x00090000
+Loading bzImage at address 00100000 (5333600 bytes)
+Magic signature found
+Kernel command line: "rootwait root=PARTUUID=012b3303-34ac-284d-99b4-34e03a2335"
+
+Starting kernel ...
+
+[    1.678727] pmic_ccsm pmic_ccsm: Error reading battery profile from battid fk
+[    1.685993] pmic_ccsm pmic_ccsm: Battery Over heat exception
+[    1.696297] pmic_ccsm pmic_ccsm: Battery0 temperature outside boundary
+
+Welcome to Linux!
+
+         Expecting device sys-subsystem-net-devices-usb0.device...
+         Expecting device dev-disk-by\x2dpartlabel-update.device...
+         Expecting device dev-disk-by\x2dpartlabel-home.device...
+[  OK  ] Reached target Paths.
+[  OK  ] Set up automount Arbitrary Executable File Formats F...utomount Point.
+[  OK  ] Reached target Swap.
+[  OK  ] Set up automount boot.automount.
+[  OK  ] Created slice Root Slice.
+[  OK  ] Listening on Journal Socket.
+[  OK  ] Listening on udev Control Socket.
+[  OK  ] Listening on /dev/initctl Compatibility Named Pipe.
+[  OK  ] Listening on udev Kernel Socket.
+[  OK  ] Listening on Delayed Shutdown Socket.
+[  OK  ] Created slice System Slice.
+         Starting Create list of required static device nodes...rrent kernel...
+         Starting Apply Kernel Variables...
+         Starting udev Coldplug all Devices...
+         Starting Journal Service...
+[  OK  ] Started Journal Service.
+         Mounting Debug File System...
+         Starting Trigger Flushing of Journal to Persistent Storage...
+         Starting Load Kernel Modules...
+         Mounting POSIX Message Queue File System...
+[  OK  ] Reached target Slices.
+         Starting Remount Root and Kernel File Systems...
+         Starting Create Volatile Files and Directories...
+         Mounting Temporary Directory...
+[  OK  ] Mounted POSIX Message Queue File System.
+[  OK  ] Mounted Debug File System.
+[  OK  ] Mounted Temporary Directory.
+[  OK  ] Started Create list of required static device nodes ...current kernel.
+[  OK  ] Started Apply Kernel Variables.
+[  OK  ] Started Remount Root and Kernel File Systems.
+[  OK  ] Started Create Volatile Files and Directories.
+[  OK  ] Started udev Coldplug all Devices.
+[  OK  ] Started Trigger Flushing of Journal to Persistent Storage.
+[  OK  ] Started Load Kernel Modules.
+         Mounting FUSE Control File System...
+         Mounting Configuration File System...
+         Starting Load/Save Random Seed...
+         Starting Update UTMP about System Boot/Shutdown...
+         Starting Create Static Device Nodes in /dev...
+         Starting Network Time Synchronization...
+         Starting Opkg first boot configure...
+[  OK  ] Mounted Configuration File System.
+[  OK  ] Mounted FUSE Control File System.
+[  OK  ] Started Network Time Synchronization.
+[  OK  ] Started Load/Save Random Seed.
+[  OK  ] Started Create Static Device Nodes in /dev.
+[  OK  ] Started Update UTMP about System Boot/Shutdown.
+[  OK  ] Started Opkg first boot configure.
+         Starting udev Kernel Device Manager...
+[  OK  ] Reached target Local File Systems (Pre).
+         Mounting /var/volatile...
+[  OK  ] Mounted /var/volatile.
+[  OK  ] Started udev Kernel Device Manager.
+[  OK  ] Reached target System Initialization.
+[  OK  ] Reached target Timers.
+[  OK  ] Listening on D-Bus System Message Bus Socket.
+         Starting Restore Sound Card State...
+[  OK  ] Found device /dev/disk/by-partlabel/update.
+[  OK  ] Started Restore Sound Card State.
+[  OK  ] Found device /dev/disk/by-partlabel/home.
+[  OK  ] Reached target Sound Card.
+[  OK  ] Found device /sys/subsystem/net/devices/usb0.
+[  OK  ] Created slice system-systemd\x2drfkill.slice.
+         Starting Load/Save RF Kill Switch Status of rfkill0...
+         Starting Load/Save RF Kill Switch Status of rfkill2...
+         Starting Load/Save RF Kill Switch Status of rfkill1...
+[  OK  ] Listening on sshd.socket.
+[  OK  ] Started Load/Save RF Kill Switch Status of rfkill0.
+[  OK  ] Started Load/Save RF Kill Switch Status of rfkill2.
+[  OK  ] Started Load/Save RF Kill Switch Status of rfkill1.
+[  OK  ] Reached target Sockets.
+[  OK  ] Reached target Basic System.
+         Starting First install service...
+[  OK  ] Started First install service.
+[  OK  ] Reached target First Install target.
+         Starting Watchdog sample daemon...
+[    8.792161] sh[189]: Starting First Install (try: 0)
+[  OK  ] Started Watchdog sample daemon.
+         Starting Generate unique machine-id...
+[    8.847270] sh[189]: mke2fs 1.42.9 (28-Dec-2013)
+         Starting Crashlog service...
+[  OK  ] Started Crashlog service.
+         Starting Cleanjournal service...
+[  OK  ] Started Cleanjournal service.
+         Mounting Arbitrary Executable File Formats File System...
+[    9.198644] systemd-machine-id-setup[211]: Initializing machine ID from rand.
+[  OK  ] Mounted Arbitrary Executable File Formats File System.
+[    9.403765] systemctl[218]: rm '/etc/systemd/system/basic.target.wants/ediso'
+[  OK  ] Started Generate unique machine-id.
+[    9.912718] sh[189]: Discarding device blocks: done         
+[    9.972408] sh[189]: Filesystem label=
+[   10.062304] sh[189]: OS type: Linux
+[  OK  ] Created slice system-systemd\x2dfsck.slice.
+[   10.142324] sh[189]: Block size=4096 (log=2)
+         Starting File System Check on /dev/disk/by-partlabel/boot...
+[   10.173542] sh[189]: Fragment size=4096 (log=2)
+[   10.282273] sh[189]: Stride=0 blocks, Stripe width=0 blocks
+[   10.293835] sh[189]: 87120 inodes, 348155 blocks
+[   10.295863] sh[189]: 0 blocks (0.00%) reserved for the super user
+[   10.297858] sh[189]: First data block=0
+[   10.299925] sh[189]: Maximum filesystem blocks=356515840
+[   10.312634] sh[189]: 11 block groups
+[   10.315185] sh[189]: 32768 blocks per group, 32768 fragments per group
+[   10.317748] sh[189]: 7920 inodes per group
+[   10.322593] sh[189]: Superblock backups stored on blocks:
+[   10.332733] sh[189]: 32768, 98304, 163840, 229376, 294912
+[   10.346060] sh[189]: Allocating group tables: done 
+[   10.362713] sh[189]: Writing inode tables: done 
+[   10.365434] systemd-fsck[230]: dosfsck 2.11, 12 Mar 2005, FAT32, LFN
+[   10.368038] systemd-fsck[230]: /dev/mmcblk0p7: 5 files, 2700/2931 clusters
+[  OK  ] Started File System Check on /dev/disk/by-partlabel/boot.
+         Mounting /boot...
+[   10.570272] sh[189]: Creating journal (8192 blocks): done
+[  OK  ] Mounted /boot.
+[   13.201533] sh[189]: Writing superblocks and filesystem accounting infodone 1
+[   13.264063] sh[189]: Formatting home partition : Success
+[   13.283526] sh[189]: Backup home/root contents of rootfs : Success
+[   13.335965] sh[189]: Mount /home partition : Success
+[   13.366514] sh[189]: Restore home/root contents on new /home partition : Sucs
+[   13.394087] sh[189]: Device contains neither a valid DOS partition table, nol
+[   13.412588] sh[189]: Building a new DOS disklabel. Changes will remain in me,
+[   13.440449] sh[189]: until you decide to write them. After that the previoust
+[   13.491490] sh[189]: won't be recoverable.
+[   13.542287] sh[189]: The number of cylinders for this disk is set to 24576.
+[   13.592172] sh[189]: There is nothing wrong with that, but this is larger th,
+[   13.642177] sh[189]: and could in certain setups cause problems with:
+[   13.692220] sh[189]: 1) software that runs at boot time (e.g., old versions )
+[   13.742168] sh[189]: 2) booting and partitioning software from other OSs
+[   13.792164] sh[189]: (e.g., DOS FDISK, OS/2 FDISK)
+[   13.842134] sh[189]: Command (m for help): Command action
+[   13.892395] sh[189]: e   extended
+[   13.942410] sh[189]: p   primary partition (1-4)
+[   13.992165] sh[189]: Partition number (1-4): First cylinder (1-24576, defaul1
+[   14.042195] sh[189]: Last cylinder or +size or +sizeM or +sizeK (1-24576, de6
+[   14.122436] sh[189]: Command (m for help): Selected partition 1
+[   14.172417] sh[189]: Hex code (type L to list codes): Changed system type of)
+[   14.252348] sh[189]: Command (m for help):
+[   14.302373] sh[189]: Disk /dev/disk/by-partlabel/update: 805 MB, 805306368 bs
+[   14.352424] sh[189]: 4 heads, 16 sectors/track, 24576 cylinders
+[   14.402423] sh[189]: Units = cylinders of 64 * 512 = 32768 bytes
+[   14.452350] sh[189]: Device Boot      Start         End      Blocks  Id Systm
+[   14.502129] sh[189]: /dev/disk/by-partlabel/update1               1       242
+[   14.542564] sh[189]: Command (m for help): The partition table has been alte.
+[   14.563874] sh[189]: Calling ioctl() to re-read partition table
+[   14.602486] sh[189]: fdisk: WARNING: rereading partition table failed, kernet
+[   14.629644] sh[189]: Formatting update partition Step 1 : Success
+[   14.674721] sh[189]: Formatting update partition Step 2 : Success
+[   14.706047] sh[189]: mkfs.vfat 2.11 (12 Mar 2005)
+[   14.722285] sh[189]: Loop device does not match a floppy size, using defaults
+[   14.756158] sh[189]: Formatting update partition Step 3 : Success
+[   14.772393] sh[189]: Formatting update partition Step 4 final : Success
+[   26.267637] sh[189]: Generating sshd keys : Success
+[   26.298803] sh[189]: Update file system table /etc/fstab : Success
+[   27.696388] sh[189]: Generating Wifi Access Point SSID and passphrase : Succs
+[   27.719468] sh[189]: First install success
+[   27.741812] sh[189]: No journal files were found.
+Application available at (physical) address 0x04819000
+        VRL mapped to 0xff213000
+        App size = 11484 bytes
+
+        App Authentication feature is disabled!
+        Resetting IPC
+
+*** Ready to receive application *** 
+[   28.806880] resize2fs[305]: resize2fs 1.42.9 (28-Dec-2013)
+[   29.019362] resize2fs[305]: Filesystem at /dev/disk/by-partlabel/rootfs is md
+[   29.091086] resize2fs[305]: old_desc_blocks = 1, new_desc_blocks = 1
+[   29.137741] resize2fs[305]: The filesystem on /dev/disk/by-partlabel/rootfs .
+[   29.463330] systemctl[338]: rm '/etc/systemd/system/default.target.wants/res'
+[   30.380783] systemd-fsck[362]: /dev/mmcblk0p10: clean, 12/87120 files, 14182s
+
+Poky (Yocto Project Reference Distro) 1.6.1 edison ttyMFD2
+
+edison login: 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

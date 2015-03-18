@@ -41,6 +41,7 @@ Articles
 	http://alextgalileo.altervista.org/blog/
 	http://blog.dimitridiakopoulos.com/2014/09/10/hands-on-intel-edison/
 	http://fab-lab.eu/edison/
+	http://www.codefoster.com/edison-setup/
 
 Non oficial opkg repo
 	http://alextgalileo.altervista.org/edison-package-repo-configuration-instructions.html

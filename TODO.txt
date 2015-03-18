@@ -16,7 +16,7 @@ interface usb0 ???
 systemctl
 EFI gpt
 opkg - create yocto repo
-
+nfs
 
 
 3) скачивание доков, копия доков на гугльдрайве

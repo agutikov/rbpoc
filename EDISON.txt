@@ -1,4 +1,8 @@
 
+bio_ed
+root
+12345
+
 
 
 Живые линки на доки
@@ -11,6 +15,8 @@
 Connector Pinout
 	http://www.intel.com/support/edison/sb/CS-035259.htm
 
+Buttons
+	https://communities.intel.com/docs/DOC-23454
 
 Downloads
 	http://www.intel.com/support/edison/sb/CS-035180.htm
@@ -30,7 +36,15 @@ adding kernel modules to Yocto
 Access to Peripherals from Quark MCU
 	https://communities.intel.com/message/268647
 
+Articles
+	http://www.helios.de/heliosapp/edison/index.html
+	http://alextgalileo.altervista.org/blog/
+	http://blog.dimitridiakopoulos.com/2014/09/10/hands-on-intel-edison/
+	http://fab-lab.eu/edison/
 
+Non oficial opkg repo
+	http://alextgalileo.altervista.org/edison-package-repo-configuration-instructions.html
+	https://communities.intel.com/thread/55692?tstart=0
 
 
 

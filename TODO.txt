@@ -3,11 +3,21 @@
 
 
 1) build yocto image and flash it
-	wifi
 
 2) all existing guides (wifi, bt, ...)
 	загрузчики, bootstrapping
 	также потрогать API в т.ч. mraa
+
+все джамперы и кнопки
+all memories and layout
+low power sleep mode
+recovery mode with buttons
+interface usb0 ???
+systemctl
+EFI gpt
+opkg - create yocto repo
+
+
 
 3) скачивание доков, копия доков на гугльдрайве
 
@@ -32,3 +42,20 @@
 	- засабмиттить фиксы сборки, хотябы обсудить
 	- выпросить линк на git edison yocto 
 	- выпросить даташиты
+
+
+11) guide
+	- цельный манаул от начала до конца
+		- обзор платы
+		- подключение
+		- предустановленный образ
+		- предустановленный u-boot
+		- подробное описание что где лежит на сайте intel и ссылки на мануалы в блогах
+
+
+
+
+
+
+
+

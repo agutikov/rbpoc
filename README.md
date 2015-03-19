@@ -47,10 +47,12 @@ From: [tftp download and upload command](https://rathodpratik.wordpress.com/2012
 
 ### Build Yocto
 
+[working git repo](https://github.com/agutikov/edison-src)
+
 * [Intel: official manual](http://www.intel.com/support/edison/sb/CS-035278.htm)
 * [ShawnHymel: Creating a Custom Linux Kernel for the Edison](http://shawnhymel.com/585/creating-a-custom-linux-kernel-for-the-edison/)
 
-##### Image
+#### Image
 	./device-software/setup.sh --dl_dir=/home/user/work/edison/bb_downloads/ \
 	--sstate_dir=/home/user/work/edison/bb_sstate/ --bb_number_thread=4 --parallel_make=4
 
@@ -62,12 +64,15 @@ From: [tftp download and upload command](https://rathodpratik.wordpress.com/2012
 
 	ls build/toFlash
 
-##### SDK
+#### SDK
 	source poky/oe-init-build-env  
 	bitbake edison-image -c populate_sdk  
 	ls tmp/deploy/sdk/  
 
-##### uImage
+#### uImage
+
+#### modify kernel config and save changes
+
 
 
 ### Reflash, upgrade
@@ -81,11 +86,11 @@ Run flashall.sh as root.
 
 	mount -t nfs -o nolock <host_ip>:<host_path>
 
-##### add nfs-utils packet to image
+#### add nfs-utils packet to image
 device-software/meta-edison-distro/recipes-core/images/edison-image.bb  
 	IMAGE_INSTALL += "nfs-utils"
 
-##### nfsrootfs
+#### nfsrootfs
 
 TODO: u-boot usb-ethernet
 

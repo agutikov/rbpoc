@@ -2,11 +2,27 @@
 
 0) wifi - DONE
 0) tftp - DONE
-
 1) build yocto image and flash it - DONE
+1) расковырять edison-src, удалить лишнее, разобрать где там что, написать readme, залить в гитхаб рабочий вариант - DONE
 
-2) all existing guides 
-	также потрогать API в т.ч. mraa
+================================================================================
+
+2) найти исходники ядра и u-boot
+
+2) kernel config - modify and save
+
+2) mount nfs
+
+2) install provided SDK
+
+2) cross compile C,C++
+	run python
+
+2) gpio, pwm
+	pinout of edison connector
+	pinout of arduino board
+
+2.1) mraa
 
 получить данные из adc и отправить на комп по сети (wifi)
 	http://iotdk.intel.com/docs/master/mraa/
@@ -17,29 +33,43 @@
 и простенький-же гуй на pythob отображает их в виде графиков
 	matplotlib
 
+3) все джамперы и кнопки
 
 
-все джамперы и кнопки
-all memories and layout
-boot process
-low power sleep mode
-recovery mode with buttons
-interface usb0 ???
-systemctl
-EFI gpt
-opkg - create yocto repo
+================================================================================
 
+5) merge edison-src and edison-howto:
+	edison/
+	edison/edison-src/
+	edison/Documentation/Makefile
+		скачивание доков и переименовывание
+	edison/notes/
+	edison/TODO.txt
+	edison/README.md
+		content overview
+		step-by-step
+		- (before rebuild and reflash) first start, hw overview, simple usage, use opkg
+		- (rebuild and reflash) yocto: content overview, build, flash, edit, create opkg repo
+		- (after rebuild and reflash) advanced usage, nfs, nfsroot, internals, emmc partitions, boot sequence, kernel and u-boot sources
+		- gentoo
 
+5) all memories and layout
 
-3) NFS, nfsroot
+5) boot process
 
+5) low power sleep mode
 
-3) скачивание доков и переименовывание
+5) recovery mode with buttons
 
+5) interface usb0 ???
 
-4) расковырять edison-src, удалить лишнее, разобрать где там что, написать readme, залить в гитхаб рабочий вариант
-	- найти исходники ядра и u-boot
+5) systemctl
 
+5) EFI gpt
+
+5) opkg - create yocto repo
+
+5) nfsroot
 
 5) научиться добавлять в yocto проект из своего git-а
 
@@ -47,7 +77,7 @@ opkg - create yocto repo
 
 7) раскурить yocto и bitbake
 
-8) gentoo и статья с линуксовкой
+8) gentoo
 	8.1) crossdev for edison
 	8.2) u-boot for tftp and nfs
 	8.3) stage3 and /usr/<cross>/ sysroot
@@ -61,15 +91,6 @@ opkg - create yocto repo
 	- засабмиттить фиксы сборки, хотябы обсудить
 	- выпросить линк на git edison yocto 
 	- выпросить даташиты
-
-
-11) guide
-	- цельный манаул от начала до конца
-		- обзор платы
-		- подключение
-		- предустановленный образ
-		- предустановленный u-boot
-		- подробное описание что где лежит на сайте intel и ссылки на мануалы в блогах
 
 
 12) Debug

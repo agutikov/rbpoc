@@ -42,6 +42,9 @@ Non oficial opkg repo
 	http://alextgalileo.altervista.org/edison-package-repo-configuration-instructions.html
 	https://communities.intel.com/thread/55692?tstart=0
 
+First found official github
+	https://github.com/intel-iot-devkit/
+
 
 
 ------------------------------------------

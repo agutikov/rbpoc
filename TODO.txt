@@ -4,23 +4,23 @@
 0) tftp - DONE
 1) build yocto image and flash it - DONE
 1) расковырять edison-src, удалить лишнее, разобрать где там что, написать readme, залить в гитхаб рабочий вариант - DONE
+2) kernel config - modify and save - DONE
+2) u-boot conifg - modify and save - DONE
+2) mount nfs - DONE
+2) install provided SDK - DONE
+2) gpio
+	pinout of edison connector	- DONE
+	pinout of arduino board 	- DONE
+
+2) cross compile C,C++   - DONE
+	run python	- DONE
+
+2) PWM + ADC (linked) - DONE
 
 ================================================================================
 
-2) найти исходники ядра и u-boot
 
-2) kernel config - modify and save
 
-2) mount nfs
-
-2) install provided SDK
-
-2) cross compile C,C++
-	run python
-
-2) gpio, pwm
-	pinout of edison connector
-	pinout of arduino board
 
 2.1) mraa
 
@@ -32,9 +32,20 @@
 	https://docs.python.org/2/library/socketserver.html
 и простенький-же гуй на pythob отображает их в виде графиков
 	matplotlib
+	встроить в
+	https://wiki.python.org/moin/TkInter
+
+
+2.2) получить данные через кастомный драйвер с максимальной частотой 1МГц
+
+2.3) генератор сигнала с мостом Вина
+
+2.4) два adc и один интегральный функциональный генератор типа AD9833
+
 
 3) все джамперы и кнопки
 
+2) найти исходники ядра и u-boot
 
 ================================================================================
 
@@ -53,13 +64,22 @@
 		- (after rebuild and reflash) advanced usage, nfs, nfsroot, internals, emmc partitions, boot sequence, kernel and u-boot sources
 		- gentoo
 
+5) GPIO, spi, adc, uart ...
+	sh
+	C
+	python
+
+	drivers
+
+
+
 5) all memories and layout
 
 5) boot process
 
 5) low power sleep mode
 
-5) recovery mode with buttons
+5) recovery mode with buttons - for damaged u-boot
 
 5) interface usb0 ???
 
@@ -73,7 +93,7 @@
 
 5) научиться добавлять в yocto проект из своего git-а
 
-6) заменить ядро последним из git-а
+6) заменить ядро и u-boot последним из git-а
 
 7) раскурить yocto и bitbake
 

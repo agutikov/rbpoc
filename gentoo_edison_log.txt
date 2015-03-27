@@ -1,6 +1,6 @@
 
 
-crossdev -S i686-pc-linux-gnu
+crossdev -S i586-pc-linux-gnu
 
 
 
@@ -27,11 +27,10 @@ cat /usr/loca/bin/xcross.sh
 
 	$*
 
-export SYSROOT=/usr/i686-pc-linux-gnu
-export ARCH=i686
+export SYSROOT=/usr/i586-pc-linux-gnu
+export ARCH=x86
 
 /usr/local/bin/xcross.sh emerge mtd-utils -av
-
 
 
 

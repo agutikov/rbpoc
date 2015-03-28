@@ -10,7 +10,7 @@ import socket
 import sys
 import json
 
-adc0 = mraa.Aio(2)
+adc0 = mraa.Aio(1)
 
 start_time = time.time()
 

@@ -9,12 +9,12 @@ import signal
 import time
 
 
-mydict = SqliteDict('./my_db.sqlite', autocommit=True)
+mydict = SqliteDict('./my_db.sqlite', autocommit=False)
 
 
 recorded = 0
 
-class MyUDPHandler(socketserver.BaseRequestHandler):
+class MyTCPHandler(socketserver.StreamRequestHandler):
 	
 	"""
 	This class works similar to the TCP handler class, except that
@@ -25,29 +25,36 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
 
 	def handle(self):
 		global recorded
-		data = self.request[0].strip()
-		socket = self.request[1]
-#		print("{} wrote:".format(self.client_address[0]))
-#		print(data)
-#		socket.sendto(data.upper(), self.client_address)
+		
+		while True:
+			data = self.rfile.readline().strip()
+				
+			if len(data) == 0:
+				break
+			
+			try:
+				frame = json.loads(data.decode('utf-8'))
+			except:
+				pprint(data)
+				print("LEN:", len(data))
 
-		try:
-			frame = json.loads(data.decode('utf-8'))
-		except:
-			pprint(data)
-			print("LEN:", len(data))
+			for sample in frame:
+				mydict[recorded] = sample
+				recorded += 1
 
-		for sample in frame:
-			mydict[sample[0]] = sample[1]
-			recorded += 1
-		
-		print("recorded: ", recorded)
-		
-		
+			mydict.commit()
+
+			print("recorded: ", recorded)
+			
+'''
+			for sample in frame:
+				mydict[sample[0]] = sample[1]
+				recorded += 1
+'''
 
 
 HOST, PORT = "0.0.0.0", 9999
-server = socketserver.UDPServer((HOST, PORT), MyUDPHandler)
+server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 
 
 try:

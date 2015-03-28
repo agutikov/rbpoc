@@ -10,7 +10,7 @@ import socket
 import sys
 import json
 
-adc0 = mraa.Aio(1)
+
 
 start_time = time.time()
 
@@ -28,40 +28,70 @@ def get_aio_frame(adc, count, wait_us):
 		count -= 1
 		
 	return frame
-	
-# samples = get_aio_frame(adc0, 1000, 500)
-# pprint(samples)
-# print(json.dumps(samples))
-# exit()
+
+def get_aio_frame_wo_time(adc, count, wait_us):
+	global start_time
+	frame = []
+	prev = time.time()
+	wait_s = wait_us * 0.000001
+	while count:
+		t = time.time()
+		while (t - prev) < wait_s:
+			t = time.time()
+		frame.append(adc.read())
+		prev = t
+		count -= 1
+		
+	return frame
+
 
 frame_queue = Queue.Queue()
 
 
-def monitor_thread_routine (adc, q):
+def monitor_thread_routine (q):
+	print("monitor_thread_routine")
+	adc = mraa.Aio(1)
+	print("adc on")
 	while True:
-		q.put(get_aio_frame(adc, 250, 5000))
-
+		q.put(get_aio_frame_wo_time(adc, 2000, 500))
+		time.sleep(0.1)
+		pass
 
 HOST = sys.argv[1]
 PORT = int(sys.argv[2])
 
 print("%s:%d" % (HOST, PORT))
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-
-def uploader_routine (q, s, host, port):
+def uploader_routine (q, host_port):
 	sended = 0
+	frame = []
 	while True:
-		frame = q.get(block=True)
-		s.sendto(json.dumps(frame), (host, port))
-		sended += len(frame)
-		print("sended: ", sended)
+		try:
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock.connect(host_port)
+			connected = True
+		except:
+			time.sleep(1)
+			print("not connected")
+			connected = False
+		while connected:
+			tail = q.get(block=True)
+			frame += tail
+			try:
+				sock.sendall(json.dumps(frame) + "\n")
+				sended += len(frame)
+				print("sended: %d" % sended)
+				frame = []
+			except:
+				print("tcp connect lost")
+				connected = False
 
 
 try:
-	thread.start_new_thread( monitor_thread_routine, (adc0, frame_queue) )
-	thread.start_new_thread( uploader_routine, (frame_queue, sock, HOST, PORT) )
+	thread.start_new_thread( monitor_thread_routine, (frame_queue, ) )
+	print("monitor_thread_routine started")	
+	thread.start_new_thread( uploader_routine, (frame_queue, (HOST, PORT)) )
+	print("uploader_routine started")	
 except:
 	print "Error: unable to start thread"
 

@@ -39,12 +39,16 @@ class MyTCPHandler(socketserver.StreamRequestHandler):
 				print("LEN:", len(data))
 
 			for sample in frame:
-				mydict[recorded] = sample
+				mydict[float(sample[0])] = int(sample[1])
 				recorded += 1
 
-			mydict.commit()
-
-			print("recorded: ", recorded)
+			try:
+				mydict.commit()
+				print("recorded: ", recorded)
+			except:
+				print("dropped: ", recorded)
+				mydict.conn.rollback()
+				
 			
 '''
 			for sample in frame:

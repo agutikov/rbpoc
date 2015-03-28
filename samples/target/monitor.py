@@ -53,7 +53,7 @@ def monitor_thread_routine (q):
 	adc = mraa.Aio(1)
 	print("adc on")
 	while True:
-		q.put(get_aio_frame_wo_time(adc, 2000, 500))
+		q.put(get_aio_frame(adc, 2000, 500))
 		time.sleep(0.1)
 		pass
 

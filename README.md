@@ -213,11 +213,16 @@ Also start with libmraa.
 
 
 ### Recovery mode
+
 https://communities.intel.com/docs/DOC-23454
+
 https://communities.intel.com/message/257632
+
 [Intel: community forum: How to recover Edison firmware](https://communities.intel.com/thread/55187)
+
 https://github.com/pokey9000/edbian/wiki
 
+https://communities.intel.com/message/257193
 
 
 

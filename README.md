@@ -229,6 +229,16 @@ https://communities.intel.com/message/257193
 
 
 
+### I2C and Sparkfun ADC shield
+
+http://elinux.org/Interfacing_with_I2C_Devices
+
+https://github.com/modmaker/BeBoPr-plus-plus/wiki/ADS1015-ADC-Access
+
+drivers/hwmon/ads1015.c
+
+
+
 
 
 

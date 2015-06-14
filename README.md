@@ -101,15 +101,19 @@ build/tmp/work/edison-poky-linux/linux-yocto/
 	bitbake virtual/kernel -c menuconfig
 or
 	bitbake linux-yocto -c menuconfig
-
+and then
 	cp ./tmp/work/edison-poky-linux/linux-yocto/3.10.17+gitAUTOINC+6ad20f049a_c03195ed6e-r0/linux-edison-standard-build/.config \
 	../device-software/meta-edison/recipes-kernel/linux/files/defconfig
 
+bitbake linux-yocto -c deploy
+build/tmp/deploy/images/edison/bzImage
+build/tmp/deploy/images/edison/modules-edison.tgz
 
+https://software.intel.com/en-us/blogs/2015/02/27/intel-edison-adding-kernel-modules-to-yocto-example-batman
 
 ../device-software/meta-edison/recipes-kernel/linux/files/defconfig
-./tmp/work/edison-poky-linux/linux-yocto/defconfig
 
+./tmp/work/edison-poky-linux/linux-yocto/defconfig
 ./tmp/work/edison-poky-linux/linux-yocto/3.10.17+gitAUTOINC+6ad20f049a_c03195ed6e-r0/linux/arch/x86/configs/i386_edison_defconfig
 
 Нафиг дублировать defconfig в upstream_to_edison.patch ?
@@ -126,7 +130,8 @@ device-software/meta-edison/recipes-kernel/linux/linux-yocto_3.10.bbappend
 do_menuconfig
 poky/meta/classes/cml1.bbclass
 
-
+export LINUX_EDISON_BUILD_DIR="/home/user/work/edison/github/edison-src/build/tmp/work/edison-poky-linux/linux-yocto/3.10.17+gitAUTOINC+6ad20f049a_c03195ed6e-r0/linux-edison-standard-build/"
+make -C $LINUX_EDISON_BUILD_DIR  M=`pwd`
 
 #### U-boot
 
@@ -239,7 +244,11 @@ drivers/hwmon/ads1015.c
 
 
 
+insmod ./ads1015_adc.ko
+echo ads1015 0x48 > /sys/bus/i2c/devices/i2c-1/new_device
 
+echo 0x48 > /sys/bus/i2c/devices/i2c-1/delete_device
+rmmod ads1015_adc
 
 
 

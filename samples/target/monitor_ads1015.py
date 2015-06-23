@@ -29,7 +29,7 @@ def get_frame(adc_file):
 		data_arr.fromfile(adc_file, desc[2])
 #		print("readed", len(data))
 		data = data_arr.tolist()
-		frame = [desc, data]
+		frame = [[desc[0], desc[1]], data]
 	except IOError, err:
 		pprint(err)
 	return frame
@@ -100,7 +100,7 @@ def uploader_routine (q, host_port):
 #			print(msg)
 			try:
 				sock.sendall(msg)
-				sended += frame[0][2]
+				sended += len(frame[1])
 				print("frames sended: %d" % sended)
 			except:
 				print("tcp connect lost")

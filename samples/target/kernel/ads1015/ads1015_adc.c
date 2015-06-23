@@ -13,6 +13,7 @@
 #include <linux/fs.h>
 #include <linux/miscdevice.h>
 #include <linux/kthread.h>
+#include <linux/timer.h>
 #include <linux/sched.h>
 #include <asm/uaccess.h>
 
@@ -32,18 +33,21 @@ static const unsigned int fullscale_table[8] = {
 static const unsigned int data_rate_table[8] = {
 	128, 250, 490, 920, 1600, 2400, 3300, 3300 };
 
-#define ADS1015_ADC_DEFAULT_CHANNEL 0
+#define ADS1015_ADC_DEFAULT_CHANNEL 4
 #define ADS1015_ADC_DEFAULT_GAIN 2
-#define ADS1015_ADC_DEFAULT_RATE 4
+#define ADS1015_ADC_DEFAULT_RATE 6
 #define ADS1015_ADC_DEFAULT_COMP_MODE 0
 #define ADS1015_ADC_DEFAULT_COMP_POL 0
 #define ADS1015_ADC_DEFAULT_COMP_LAT 0
 #define ADS1015_ADC_DEFAULT_COMP_QUE 3
 
 struct ads1015_adc_buffer {
-	struct ads1015_adc_sample *buffer;
-	size_t buffer_size;
-	size_t buffer_count;
+	__u16 *buffer;
+	size_t size;
+	size_t count;
+	size_t read_count;
+	ktime_t first;
+	ktime_t last;
 };
 
 struct ads1015_adc_data {
@@ -62,13 +66,14 @@ struct ads1015_adc_data {
 	// conversion thread
 	struct task_struct *task;
 	u8 run;
+	u8 stopped;
+//	struct timer_list timer;
 
 	// adc samples queue
 	struct ads1015_adc_buffer *current_buffer;
-	struct ads1015_adc_buffer buffer_1;
-	struct ads1015_adc_buffer buffer_2;
+	struct ads1015_adc_buffer buffers[2];
 	u8 switch_flag;
-	u8 overflow;
+	uint32_t overflow;
 
 	// interface - misc device
 	struct miscdevice misc_dev;
@@ -88,69 +93,131 @@ u16 ads1015_adc_data_to_config_regval (struct ads1015_adc_data *data)
 	return config;
 }
 
+#if 1
 int thread_convertion (void *arg)
 {
 	int res;
-	ktime_t now;
 	struct ads1015_adc_data *data = (struct ads1015_adc_data *) arg;
-	ktime_t prev = ktime_get();
-	struct ads1015_adc_sample sample = {0, 0};
+	uint16_t sample;
 	u32 delay_us;
+
+	data->current_buffer->first = ktime_get();
 
 	printk("thread_convertion start\n");
 
 	while (data->run) {
-		now = ktime_get();
-		sample.dt = now.tv64 - prev.tv64;
-		prev = now;
-
 		res = i2c_smbus_read_word_swapped(data->client, ADS1015_CONVERSION);
 		if (res < 0) {
 			printk("read conv error\n");
 			break;
 		} else {
-			sample.value = (u16)res;
+			sample = (u16)res;
 		}
+		data->current_buffer->last = ktime_get();
 
-		if (data->current_buffer->buffer_count == data->current_buffer->buffer_size) {
+		if (data->current_buffer->count == data->current_buffer->size) {
 			data->overflow++;
 		} else {
-			data->current_buffer->buffer[data->current_buffer->buffer_count] = sample;
-			data->current_buffer->buffer_count++;
+			data->current_buffer->buffer[data->current_buffer->count] = sample;
+			data->current_buffer->count++;
 		}
 
 		if (data->switch_flag) {
-			if (data->current_buffer == &data->buffer_1) {
-				data->current_buffer = &data->buffer_2;
+			if (data->current_buffer == &data->buffers[0]) {
+				data->current_buffer = &data->buffers[1];
 			} else {
-				data->current_buffer = &data->buffer_1;
+				data->current_buffer = &data->buffers[0];
 			}
 			data->switch_flag = 0;
+			data->current_buffer->first = ktime_get();
+			data->current_buffer->count = 0;
+			data->current_buffer->read_count = 0;
 		}
 
 		delay_us = 1000000 / data_rate_table[data->rate];
 		udelay(delay_us - 190);
 	}
-
+	data->stopped = 1;
 	printk("thread_convertion exit\n");
 
 	return 0;
 }
+#endif
+
+#if 0
+void conversion_timer_call (unsigned long arg)
+{
+	int res;
+	struct ads1015_adc_data *data = (struct ads1015_adc_data *) arg;
+	uint16_t sample;
+	u32 delay_us;
+
+	printk("conversion_timer_call\n");
+
+	res = i2c_smbus_read_word_swapped(data->client, ADS1015_CONVERSION);
+	if (res < 0) {
+		printk("read conv error\n");
+	} else {
+		sample = (u16)res;
+
+		data->current_buffer->last = ktime_get();
+
+		if (data->current_buffer->count == data->current_buffer->size) {
+			data->overflow++;
+		} else {
+			data->current_buffer->buffer[data->current_buffer->count] = sample;
+			data->current_buffer->count++;
+		}
+	}
+
+	if (data->switch_flag) {
+		if (data->current_buffer == &data->buffers[0]) {
+			data->current_buffer = &data->buffers[1];
+		} else {
+			data->current_buffer = &data->buffers[0];
+		}
+		data->switch_flag = 0;
+		data->current_buffer->first = ktime_get();
+		data->current_buffer->count = 0;
+		data->current_buffer->read_count = 0;
+	}
+
+	delay_us = 1000000 / data_rate_table[data->rate];
+
+	if (data->run) {
+		res = mod_timer(&data->timer, jiffies + usecs_to_jiffies(delay_us - 190));
+		if (res)
+			printk("mod_timer error %d\n", res);
+	} else {
+		data->stopped = 1;
+	}
+}
+#endif
 
 int ads1015_adc_start_conversion (struct ads1015_adc_data *data)
 {
 	int res;
 	u16 config;
+//	u32 delay_us;
+	u32 buf_size;
+
 	printk("ads1015_adc_start_conversion\n");
 
 	// alloc new buffers
-	data->buffer_1.buffer_size = data_rate_table[data->rate];
-	data->buffer_2.buffer_size = data_rate_table[data->rate];
-	data->buffer_1.buffer = kzalloc(data->buffer_1.buffer_size * sizeof(*data->buffer_1.buffer),
+	buf_size = data_rate_table[data->rate] * 10;
+	printk("buffer max length: %d\n", buf_size);
+
+	data->buffers[0].size = buf_size;
+	data->buffers[1].size = buf_size;
+	data->buffers[0].buffer = kzalloc(data->buffers[0].size * sizeof(data->buffers[0].buffer[0]),
 			GFP_KERNEL);
-	data->buffer_2.buffer = kzalloc(data->buffer_2.buffer_size * sizeof(*data->buffer_2.buffer),
+	data->buffers[1].buffer = kzalloc(data->buffers[1].size * sizeof(data->buffers[1].buffer[0]),
 			GFP_KERNEL);
-	data->current_buffer = &data->buffer_1;
+	data->buffers[0].count = 0;
+	data->buffers[1].count = 0;
+	data->buffers[0].read_count = 0;
+	data->buffers[1].read_count = 0;
+	data->current_buffer = &data->buffers[0];
 	data->switch_flag = 0;
 
 	// write config to ads1015
@@ -162,35 +229,71 @@ int ads1015_adc_start_conversion (struct ads1015_adc_data *data)
 	}
 
 	// start conversion thread
+	data->stopped = 0;
 	data->run = 1;
+#if 1
 	data->task = kthread_run(&thread_convertion, (void *)data, "ads1015");
 	if (data->task) {
 		wake_up_process(data->task);
 	}
+#endif
+#if 0
+	setup_timer(&data->timer, conversion_timer_call, (long unsigned int)data);
 
+	// call timer first time
+	delay_us = 1000000 / data_rate_table[data->rate];
+	usleep_range(delay_us, delay_us*2);
+	data->current_buffer->first = ktime_get();
+	conversion_timer_call((long unsigned int)data);
+#endif
 	return 0;
 }
 
 
 void ads1015_adc_stop_conversion (struct ads1015_adc_data *data)
 {
+	int sleep_us = 1000000 / data_rate_table[data->rate];
+	int i = 3;
+
 	printk("ads1015_adc_stop_conversion\n");
 
 	// stop conversion thread if running
+#if 1
 	if (data->run) {
 		data->run = 0;
+		while (!data->stopped && i--) {
+			wake_up_process(data->task);
+			usleep_range(sleep_us, sleep_us*2);
+		}
+		if (!i) {
+			printk("ads1015_adc_stop_conversion: stop wait timeout\n");
+		}
 		kthread_stop(data->task);
 		data->task = 0;
 	}
-
+#endif
+#if 0
+	if (data->run) {
+		data->run = 0;
+		while (!data->stopped && i--) {
+			usleep_range(sleep_us, sleep_us*2);
+		}
+		if (!i) {
+			printk("ads1015_adc_stop_conversion: stop wait timeout\n");
+		}
+		del_timer(&data->timer);
+	}
+#endif
 	// cleanup
 	if (data->current_buffer) {
-		kfree(data->buffer_1.buffer);
-		kfree(data->buffer_2.buffer);
-		data->buffer_1.buffer_count = 0;
-		data->buffer_2.buffer_count = 0;
-		data->buffer_1.buffer_size = 0;
-		data->buffer_2.buffer_size = 0;
+		kfree(data->buffers[0].buffer);
+		kfree(data->buffers[1].buffer);
+		data->buffers[0].count = 0;
+		data->buffers[1].count = 0;
+		data->buffers[0].read_count = 0;
+		data->buffers[1].read_count = 0;
+		data->buffers[0].size = 0;
+		data->buffers[1].size = 0;
 		data->current_buffer = 0;
 	}
 }
@@ -285,45 +388,36 @@ ssize_t ads1015_adc_read (struct file *filp, char __user * user_ptr, size_t leng
 {
 	struct miscdevice *misc_dev = filp->private_data;
 	struct ads1015_adc_data *data = container_of(misc_dev, struct ads1015_adc_data, misc_dev);
-	int i;
 	struct ads1015_adc_buffer *buffer;
-	size_t length_adc_data;
-	int sleep_us = 1000000 / data->rate;
+	size_t left_adc_data_length;
+	size_t count;
+	long res;
 
 	if (!data->run) {
 		printk("ads1015 adc conversion not running\n");
 		return -EINVAL;
 	}
 
-	i = 3;
-	data->switch_flag = 1;
-	while (data->switch_flag) {
-		usleep_range(sleep_us, sleep_us*2);
-		i--;
-		if (!i) {
-			data->switch_flag = 0;
-			printk("ads1015_adc_read: switch wait timeout\n");
-			return 0;
-		}
-	}
-
-	if (data->current_buffer == &data->buffer_1) {
-		buffer = &data->buffer_2;
+	if (data->current_buffer == &data->buffers[0]) {
+		buffer = &data->buffers[1];
 	} else {
-		buffer = &data->buffer_1;
+		buffer = &data->buffers[0];
 	}
 
-	length_adc_data = sizeof(buffer->buffer[0]) * buffer->buffer_count;
+	count = buffer->count - buffer->read_count;
+	left_adc_data_length = sizeof(buffer->buffer[0]) * count;
 
-	if (length_adc_data > length) {
-		buffer->buffer_count = length / sizeof(buffer->buffer[0]);
-		length_adc_data = sizeof(buffer->buffer[0]) * buffer->buffer_count;
+	if (left_adc_data_length > length) {
+		count = length / sizeof(buffer->buffer[0]);
+		left_adc_data_length = sizeof(buffer->buffer[0]) * count;
 	}
 
-	i = copy_to_user(user_ptr, buffer->buffer, length_adc_data);
-	if (i > 0) {
-		printk("ads1015_adc_read: copy_to_user error\n");
-		return length_adc_data - i;
+	if (count) {
+		res = copy_to_user(user_ptr, buffer->buffer, left_adc_data_length);
+		if (res > 0) {
+			printk("ads1015_adc_read: copy_to_user error\n");
+			return left_adc_data_length - res;
+		}
 	}
 
 #if 0
@@ -334,17 +428,56 @@ ssize_t ads1015_adc_read (struct file *filp, char __user * user_ptr, size_t leng
 	printk("overflow: %d\n", data->overflow);
 #endif
 
-	data->overflow = 0;
-	buffer->buffer_count = 0;
+	buffer->read_count += count;
 
-	return length_adc_data;
+	return left_adc_data_length;
 }
 
-long ads1015_adc_ioctl (struct file* filp, unsigned int ioctl_num, unsigned long  ioctl_parm)
+long ads1015_adc_ioctl (struct file* filp, unsigned int ioctl_num, unsigned long ioctl_parm)
 {
-//	struct miscdevice *misc_dev = filp->private_data;
-//	struct ads1015_adc_data *data = container_of(misc_dev, struct ads1015_adc_data, misc_dev);
+	struct miscdevice *misc_dev = filp->private_data;
+	struct ads1015_adc_data *data = container_of(misc_dev, struct ads1015_adc_data, misc_dev);
+	struct ads1015_adc_buffer *buffer;
+	int i = 3;
+	int sleep_us = 1000000 / data_rate_table[data->rate];
+	struct ads1015_adc_frame frame;
+	void __user *argp = (void __user *)ioctl_parm;
 
+	switch (ioctl_num) {
+
+	case ADS1015_IOCTL_SWITCH:
+
+		data->switch_flag = 1;
+		while (data->switch_flag) {
+			usleep_range(sleep_us, sleep_us*2);
+			i--;
+			if (!i) {
+				printk("ads1015_adc_ioctl: switch wait timeout\n");
+				return -EAGAIN;
+			}
+		}
+
+		if (data->current_buffer == &data->buffers[0]) {
+			buffer = &data->buffers[1];
+		} else {
+			buffer = &data->buffers[0];
+		}
+
+		frame.count = buffer->count;
+		frame.overflow = data->overflow;
+		frame.start_timestamp = buffer->first.tv64;
+		frame.duration = buffer->last.tv64 - buffer->first.tv64;
+
+		data->overflow = 0;
+
+		if (copy_to_user(argp, &frame, sizeof(frame)))
+			return -EFAULT;
+
+		break;
+
+	default:
+		return -EINVAL;
+	}
 
 	return 0;
 }

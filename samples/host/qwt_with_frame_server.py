@@ -78,62 +78,61 @@ def receiver_thread_routine ():
 	
 ################################################################################
 
-QWT_FRAME_LENGTH = 5000
+QWT_FRAME_LENGTH = 10000
 
 class DataPlot(Qwt.QwtPlot):
 
-    def __init__(self, *args):
-        Qwt.QwtPlot.__init__(self, *args)
+	def __init__(self, *args):
+		Qwt.QwtPlot.__init__(self, *args)
 
-        self.setCanvasBackground(Qt.Qt.white)
-        self.alignScales()
+		self.setCanvasBackground(Qt.Qt.white)
+		self.alignScales()
 
-        # Initialize data
-        self.x = range(0, QWT_FRAME_LENGTH)
-        self.y = zeros(len(self.x), int)
+		# Initialize data
+		self.x = range(0, QWT_FRAME_LENGTH)
+		self.y = zeros(len(self.x), int)
 
-        self.setTitle("A Moving QwtPlot Demonstration")
-        self.insertLegend(Qwt.QwtLegend(), Qwt.QwtPlot.BottomLegend);
+		self.setTitle("A Moving QwtPlot Demonstration")
+		self.insertLegend(Qwt.QwtLegend(), Qwt.QwtPlot.BottomLegend);
 
-        self.curveL = Qwt.QwtPlotCurve("Data Moving Left")
-        self.curveL.attach(self)
+		self.curveL = Qwt.QwtPlotCurve("Data Moving Left")
+		self.curveL.attach(self)
 
-#        self.curveL.setSymbol(Qwt.QwtSymbol(Qwt.QwtSymbol.Ellipse,
-#                                        Qt.QBrush(),
-#                                        Qt.QPen(Qt.Qt.yellow),
-#                                        Qt.QSize(7, 7)))
+#		self.curveL.setSymbol(Qwt.QwtSymbol(Qwt.QwtSymbol.Ellipse, Qt.QBrush(), Qt.QPen(Qt.Qt.yellow), Qt.QSize(7, 7)))
 
-        self.curveL.setPen(Qt.QPen(Qt.Qt.blue))
+		pen = Qt.QPen(Qt.Qt.blue)
+		pen.setWidth(2)
+		self.curveL.setPen(pen)
 
-        mY = Qwt.QwtPlotMarker()
-        mY.setLabelAlignment(Qt.Qt.AlignRight | Qt.Qt.AlignTop)
-        mY.setLineStyle(Qwt.QwtPlotMarker.HLine)
-        mY.setYValue(0.0)
-        mY.attach(self)
+		mY = Qwt.QwtPlotMarker()
+		mY.setLabelAlignment(Qt.Qt.AlignRight | Qt.Qt.AlignTop)
+		mY.setLineStyle(Qwt.QwtPlotMarker.HLine)
+		mY.setYValue(0.0)
+		mY.attach(self)
 
-        self.setAxisTitle(Qwt.QwtPlot.xBottom, "Time (seconds)")
-        self.setAxisTitle(Qwt.QwtPlot.yLeft, "Values")
-    
-        self.startTimer(50)
-        self.phase = 0.0
+		self.setAxisTitle(Qwt.QwtPlot.xBottom, "Time (seconds)")
+		self.setAxisTitle(Qwt.QwtPlot.yLeft, "Values")
 
-    # __init__()
+		self.startTimer(50)
+		self.phase = 0.0
 
-    def alignScales(self):
-        self.canvas().setFrameStyle(Qt.QFrame.Box | Qt.QFrame.Plain)
-        self.canvas().setLineWidth(1)
-        for i in range(Qwt.QwtPlot.axisCnt):
-            scaleWidget = self.axisWidget(i)
-            if scaleWidget:
-                scaleWidget.setMargin(0)
-            scaleDraw = self.axisScaleDraw(i)
-            if scaleDraw:
-                scaleDraw.enableComponent(
-                    Qwt.QwtAbstractScaleDraw.Backbone, False)
+	# __init__()
 
-    # alignScales()
+	def alignScales(self):
+		self.canvas().setFrameStyle(Qt.QFrame.Box | Qt.QFrame.Plain)
+		self.canvas().setLineWidth(2)
+		for i in range(Qwt.QwtPlot.axisCnt):
+			scaleWidget = self.axisWidget(i)
+			if scaleWidget:
+				scaleWidget.setMargin(0)
+			scaleDraw = self.axisScaleDraw(i)
+			if scaleDraw:
+				scaleDraw.enableComponent(
+					Qwt.QwtAbstractScaleDraw.Backbone, False)
 
-    def timerEvent(self, e):
+	# alignScales()
+
+	def timerEvent(self, e):
 		global frames
 		
 		if len(frames) > 0:
@@ -151,7 +150,7 @@ class DataPlot(Qwt.QwtPlot):
 
 			self.replot()
 
-    # timerEvent()
+	# timerEvent()
 
 # class DataPlot
 

@@ -61,9 +61,10 @@ def monitor_thread_routine (q):
 						q.put(frame)
 	#				print(q.qsize())
 					if q.qsize() > 100:
-						print("drop frames")
+						print("queue size %d - drop frames" % q.qsize())
 						while q.qsize() > 50:
 							q.get(block=False)
+						print("queue size %d" % q.qsize())
 					else:
 						time.sleep(0.2)
 		except IOError, err:

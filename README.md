@@ -130,7 +130,7 @@ device-software/meta-edison/recipes-kernel/linux/linux-yocto_3.10.bbappend
 do_menuconfig
 poky/meta/classes/cml1.bbclass
 
-export LINUX_EDISON_BUILD_DIR="/home/user/work/edison/github/edison-src/build/tmp/work/edison-poky-linux/linux-yocto/3.10.17+gitAUTOINC+6ad20f049a_c03195ed6e-r0/linux-edison-standard-build/"
+export LINUX_EDISON_BUILD_DIR="/home/dtest/edison/tmp/edison_manual_build/build/tmp/work/edison-poky-linux/linux-yocto/3.10.17-r0/linux-edison-standard-build/"
 make -C $LINUX_EDISON_BUILD_DIR  M=`pwd`
 
 #### U-boot
@@ -245,7 +245,7 @@ drivers/hwmon/ads1015.c
 
 
 insmod ./ads1015_adc.ko
-echo ads1015 0x48 > /sys/bus/i2c/devices/i2c-1/new_device
+echo ads1015_adc 0x48 > /sys/bus/i2c/devices/i2c-1/new_device
 
 echo 0x48 > /sys/bus/i2c/devices/i2c-1/delete_device
 rmmod ads1015_adc

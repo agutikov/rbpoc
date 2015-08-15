@@ -23,6 +23,7 @@ yocto, bitbake, poky
 *** Requirements
 
 git
+dfu-util
 
 
 GETTING BUILD RECEPIES, SCRIPTS AND BUILD CONFIGS
@@ -137,19 +138,41 @@ Now we have next 8 layers:
 	touch build/conf/bblayers.conf
 	touch build/conf/templateconf.cfg
 
-... create default configs
-update configs ...
+Links to configs documentation:
+* local.conf
+* bblayers.conf
+* templateconf.cfg
+
+1. create default configs and then update configs ...
+
+2. Copy configs from here
 
 
-BUILD
------
+BUILD YOCTO IMAGE
+-----------------
 
 	source ./poky/oe-init-build-env ./build
 
 	bitbake edison-image
 
+What is where now?
 
 
+PREPARE FLAHSABLE IMAGES
+------------------------
+
+	../meta-intel-edison/utils/flash/postBuild.sh
+
+	find ./toFlash/
+
+FLASH EDISON
+------------
+
+Install dfu-util.
+
+	cd ./toFlash/
+
+	sudo ./flashall.sh
 
 
 

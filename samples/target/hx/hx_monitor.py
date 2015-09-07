@@ -8,45 +8,52 @@ from pprint import pprint
 import time
 import datetime
 import struct
+import thread
+import Queue
+import socket
+import json
+from fcntl import ioctl
+import array
+
 
 if sys.version < '3':
     input = raw_input
 
-addr = "00:12:F3:23:50:5E"
+HX_BT_MAC_ADDR = "00:12:F3:23:50:5E"
 
 # search for the SampleServer service
-uuid = "00001101-0000-1000-8000-00805f9b34fb"
-service_matches = []
+SPP_DEFAULT_UUID = "00001101-0000-1000-8000-00805f9b34fb"
 
-while True:
-    service_matches = find_service( uuid = uuid, address = addr )
-    if len(service_matches) > 0:
-        break
-    print("couldn't find the SampleServer service =(")
-    print("try again...")
+def hx_connect (addr, uuid):
+    global run
+    service_matches = []
 
+    while run:
+        service_matches = find_service( uuid = uuid, address = addr )
+        if len(service_matches) > 0:
+            break
+        print("couldn't find the SampleServer service =(")
+        print("try again...")
+        time.sleep(0.5)
+    else:
+        return None
 
-first_match = service_matches[0]
-port = first_match["port"]
-name = first_match["name"]
-host = first_match["host"]
+    first_match = service_matches[0]
+    port = first_match["port"]
+    name = first_match["name"]
+    host = first_match["host"]
 
-print("connecting to \"%s\" on %s" % (name, host))
+    print("connecting to \"%s\" on %s" % (name, host))
 
-# Create the client socket
-sock=BluetoothSocket( RFCOMM )
-sock.connect((host, port))
+    # Create the client socket
+    sock=BluetoothSocket( RFCOMM )
+    sock.connect((host, port))
 
-print("connected.  type stuff")
-print("...\n")
+    print("BT connected")
 
-sock.setblocking(0)
-sys.stdin
+    sock.setblocking(0)
 
-
-
-
-
+    return sock
 
 proto = { True: 
     {
@@ -117,13 +124,7 @@ proto = { True:
     }
 }
 
-
-
-
 hx_buffer = b''
-
-
-
 
 def get_parse_single_packet ():
     global hx_buffer
@@ -161,52 +162,143 @@ def get_parse_single_packet ():
 
     return None
 
+##############################################################################
+
+frame_queue = Queue.Queue()
+
+run = True
+monitor_stopped = False
+uploader_stopped = False
+
+frame = [[0, 0], []]
+
+def monitor_thread_routine (q):
+    global monitor_stopped
+    global run
+    global hx_buffer
+    print("monitor_thread_routine started")
+    while run:
+        try:
+            print("try to connect via BT")
+
+            sock = hx_connect(HX_BT_MAC_ADDR, SPP_DEFAULT_UUID)
+
+            if not sock:
+                continue
+
+            sock.send("!d0000\x00\r")
+            sock.send("!e0000\r")
+            last_e_time = datetime.datetime.now()
+
+            while run:
+
+                if datetime.datetime.now() - last_e_time >= datetime.timedelta(seconds=59):
+                    sock.send("!d0000\x00\r")
+                    sock.send("!e0000\r")
+                    last_e_time = datetime.datetime.now()
+                while sock in select.select([sock], [], [], 0)[0]:
+                    data = sock.recv(100)
+                    # print("Rcvd: " + binascii.hexlify(data))
+                    hx_buffer = hx_buffer + data
+                    packet = get_parse_single_packet()
+                    while packet:
+                        if packet[0][0] == 0x63:
+                            if packet[0][1] == 0x10:
+                                samples = packet[1][5:21]
+                                frame[1] += samples
+                                #pprint(samples)
+                            if packet[0][1] == 0x20:
+                                samples = packet[1][5:21]
+                                samples_1 = samples[::2]
+                                samples_2 = samples[1::2]
+                                #pprint(samples_1)
+                                #pprint(samples_2)
+                            '''
+                            print("[" + datetime.datetime.now().strftime("%H:%M:%S.%f") + "] Rcvd: "
+                                    + ("0x%02X 0x%02X" % packet[0]) 
+                                    + (" \"%c%c\" " % packet[0]) 
+                                    + (" - %3d " % len(packet[1])) 
+                                    + str(packet[1]))
+                            '''
+                        packet = get_parse_single_packet()
+
+#               pprint(frame)
+                if len(frame) == 2 and len(frame[1]) > 0:
+                    q.put(frame)
+                    frame = [[0, 0], []]
+#               print(q.qsize())
+                if q.qsize() > 100:
+                    print("queue size %d - drop frames" % q.qsize())
+                    while q.qsize() > 50:
+                        q.get(block=False)
+                    print("queue size %d" % q.qsize())
+                else:
+                    time.sleep(0.2)
+
+            else: # while run
+                sock.close()
+
+        except IOError, err:
+            pprint(err)
+
+        time.sleep(0.5)
+
+    monitor_stopped = True
+    print("monitor_thread_routine stopped")
 
 
+HOST = sys.argv[1]
+PORT = int(sys.argv[2])
+
+print("host:port == %s:%d" % (HOST, PORT))
+
+def uploader_routine (q, host_port):
+    global run
+    global uploader_stopped
+    sended = 0
+    print("uploader_routine started")
+    while run:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect(host_port)
+            connected = True
+        except:
+            time.sleep(1)
+            print("not connected")
+            connected = False
+        while connected:
+            frame = q.get(block=True)
+            msg = json.dumps(frame) + "\n"
+#           print(msg)
+            try:
+                sock.sendall(msg)
+                sended += len(frame[1])
+                print("frames sended: %d" % sended)
+            except:
+                print("tcp connect lost")
+                connected = False
+    uploader_stopped = True
+    print("uploader_routine stopped")
 
 
-sock.send("!d0000\x00\r")
-sock.send("!e0000\r")
-last_e_time = datetime.datetime.now()
-
-while True:
-    if datetime.datetime.now() - last_e_time >= datetime.timedelta(seconds=59):
-        sock.send("!d0000\x00\r")
-        sock.send("!e0000\r")
-        last_e_time = datetime.datetime.now()
-    while sock in select.select([sock], [], [], 0)[0]:
-        data = sock.recv(100)
-        # print("Rcvd: " + binascii.hexlify(data))
-        hx_buffer = hx_buffer + data
-        packet = get_parse_single_packet()
-        while packet:
-            if packet[0][0] == 0x63:
-                if packet[0][1] == 0x10:
-                    samples = packet[1][5:21]
-                    pprint(samples)
-                if packet[0][1] == 0x20:
-                    samples = packet[1][5:21]
-                    samples_1 = samples[::2]
-                    samples_2 = samples[1::2]
-                    pprint(samples_1)
-                    pprint(samples_2)
-                '''
-                print("[" + datetime.datetime.now().strftime("%H:%M:%S.%f") + "] Rcvd: "
-                        + ("0x%02X 0x%02X" % packet[0]) 
-                        + (" \"%c%c\" " % packet[0]) 
-                        + (" - %3d " % len(packet[1])) 
-                        + str(packet[1]))
-                '''
-            packet = get_parse_single_packet()
+try:
+    thread.start_new_thread( monitor_thread_routine, (frame_queue, ) )
+    print("monitor thread started") 
+    thread.start_new_thread( uploader_routine, (frame_queue, (HOST, PORT)) )
+    print("uploader thread started")    
+except:
+    print "Error: unable to start thread"
 
 
-
-print("Exit.")
-
-sock.close()
-
-
-
+try:
+    while True:
+        time.sleep(1.0)
+except KeyboardInterrupt:
+    run = False
+    while not uploader_stopped and not monitor_stopped:
+        time.sleep(0.1)
+    
+    
 
 
 

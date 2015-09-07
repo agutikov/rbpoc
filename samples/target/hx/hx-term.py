@@ -39,7 +39,6 @@ print("connected.  type stuff")
 print("...\n")
 
 sock.setblocking(0)
-sys.stdin
 
 
 

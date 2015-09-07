@@ -1,0 +1,76 @@
+
+
+
+
+https://software.intel.com/en-us/articles/intel-edison-board-getting-started-with-bluetooth
+
+rfkill unblock bluetooth
+
+bluetoothctl
+
+
+    scan on
+
+    pair 00:12:F3:23:50:5E
+
+    connect 00:12:F3:23:50:5E
+
+    info 00:12:F3:23:50:5E
+        Device 00:12:F3:23:50:5E
+            Name: HX-00004826
+            Alias: HX-00004826
+            Class: 0x28070c
+            Paired: yes
+            Trusted: no
+            Blocked: no
+            Connected: no
+            LegacyPairing: no
+            UUID: Vendor specific           (00000000-deca-fade-deca-deafdecacaff)
+            UUID: Serial Port               (00001101-0000-1000-8000-00805f9b34fb)
+            UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+            Modalias: usb:v2047p0836d0275
+
+            
+            
+            
+            
+http://people.csail.mit.edu/albert/bluez-intro/x502.html
+
+rfcomm-client.c
+
+
+
+--------------------------------------
+
+install pip with opkg and something else
+http://blog.salvius.org/2015/05/installing-pip-on-intel-edison.html
+
+opkg install pip
+
+install pybluez with pip
+
+
+---------------------------------------
+
+
+
+https://code.google.com/p/pybluez/wiki/Documentation
+
+
+
+
+https://www.openice.info/2015/07/24/three-days-with-intel-edison.html
+
+    rfcomm bind /dev/rfcomm0 <device id>
+
+
+
+
+
+
+
+
+
+
+
+

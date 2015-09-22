@@ -170,12 +170,14 @@ run = True
 monitor_stopped = False
 uploader_stopped = False
 
-frame = [[0, 0], []]
 
 def monitor_thread_routine (q):
     global monitor_stopped
     global run
     global hx_buffer
+
+    frame = [[0, 0], []]
+
     print("monitor_thread_routine started")
     while run:
         try:
@@ -211,6 +213,7 @@ def monitor_thread_routine (q):
                                 samples = packet[1][5:21]
                                 samples_1 = samples[::2]
                                 samples_2 = samples[1::2]
+                               # frame[1] += samples_1
                                 #pprint(samples_1)
                                 #pprint(samples_2)
                             '''

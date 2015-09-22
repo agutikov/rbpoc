@@ -78,7 +78,7 @@ def receiver_thread_routine ():
 	
 ################################################################################
 
-QWT_FRAME_LENGTH = 10000
+QWT_FRAME_LENGTH = 512
 
 class DataPlot(Qwt.QwtPlot):
 
@@ -113,7 +113,7 @@ class DataPlot(Qwt.QwtPlot):
 		self.setAxisTitle(Qwt.QwtPlot.xBottom, "Time (seconds)")
 		self.setAxisTitle(Qwt.QwtPlot.yLeft, "Values")
 
-		self.startTimer(50)
+		self.startTimer(40)
 		self.phase = 0.0
 
 	# __init__()

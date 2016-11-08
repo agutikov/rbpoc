@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 
 import json
@@ -78,7 +78,7 @@ def receiver_thread_routine ():
 	
 ################################################################################
 
-QWT_FRAME_LENGTH = 512
+QWT_FRAME_LENGTH = 5000
 
 class DataPlot(Qwt.QwtPlot):
 
@@ -155,6 +155,14 @@ class DataPlot(Qwt.QwtPlot):
 # class DataPlot
 
 
+class MultiDemo(Qt.QWidget):
+	
+	def __init__(self, *args):
+		Qt.QWidget.__init__(self, *args)
+
+		layout = Qt.QGridLayout(self)
+
+
 
 def main(args): 
 	global server
@@ -162,6 +170,7 @@ def main(args):
 	thread.start_new_thread(receiver_thread_routine, ())
 
 	app = Qt.QApplication(args)
+	
 	demo = DataPlot()
 	demo.resize(800, 600)
 	demo.show()

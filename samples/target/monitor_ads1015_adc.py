@@ -9,9 +9,11 @@ import Queue
 import socket
 import sys
 import json
+import csv
 from fcntl import ioctl
 import struct
 import array
+from datetime import datetime
 
 
 ADS1015_IOCTL_SWITCH = 0xC004730D
@@ -40,12 +42,12 @@ def get_frame(adc_file):
 frame_queue = Queue.Queue()
 
 run = True
-monitor_stopped = False
-uploader_stopped = False
+source_stopped = False
+sink_stopped = False
 
 
 def monitor_thread_routine (q):
-	global monitor_stopped
+	global source_stopped
 	global run
 	print("monitor_thread_routine started")
 	while run:
@@ -72,10 +74,10 @@ def monitor_thread_routine (q):
 
 		time.sleep(0.5)
 		
-	monitor_stopped = True
+	source_stopped = True
 	print("monitor_thread_routine stopped")
 
-
+'''
 HOST = sys.argv[1]
 PORT = int(sys.argv[2])
 
@@ -83,7 +85,7 @@ print("host:port == %s:%d" % (HOST, PORT))
 
 def uploader_routine (q, host_port):
 	global run
-	global uploader_stopped
+	global sink_stopped
 	sended = 0
 	print("uploader_routine started")
 	while run:
@@ -102,19 +104,58 @@ def uploader_routine (q, host_port):
 			try:
 				sock.sendall(msg)
 				sended += len(frame[1])
-				print("frames sended: %d" % sended)
+				print("values sended: %d" % sended)
 			except:
 				print("tcp connect lost")
 				connected = False
-	uploader_stopped = True
+	sink_stopped = True
 	print("uploader_routine stopped")
+'''
+
+if len(sys.argv) > 1:
+	output_file_basename = sys.argv[1]
+else:
+	output_file_basename = "./output"
+
+def writer_routine (q, output_file_basename):
+	global run
+	global sink_stopped
+	saved = 0
+	print("writer_routine started")
+	while run:
+		try:
+			filename = output_file_basename + "_" + datetime.now().strftime("%m.%d-%H:%M:%S") + ".txt"
+			print("open file " + filename)
+			f = open(filename, "w+")
+			msg = ""
+			connected = True
+			while connected:
+				frame = q.get(block=True)
+				msg = msg + ",\n".join(map(str, frame[1]))
+				try:
+					f.write(msg)
+					f.flush()
+					msg = ",\n"
+					saved += len(frame[1])
+					print("values saved: %d" % saved)
+				except Exception as e:
+					print(e)
+					time.sleep(1)
+					connected = False
+		except Exception as e:
+			print(e)
+			time.sleep(1)
+			connected = False
+	sink_stopped = True
+	print("writer_routine stopped")
+
 
 
 try:
 	thread.start_new_thread( monitor_thread_routine, (frame_queue, ) )
-	print("monitor thread started")	
-	thread.start_new_thread( uploader_routine, (frame_queue, (HOST, PORT)) )
-	print("uploader thread started")	
+	print("source thread started")	
+	thread.start_new_thread( writer_routine, (frame_queue, output_file_basename) )
+	print("sink thread started")	
 except:
 	print "Error: unable to start thread"
 
@@ -124,7 +165,7 @@ try:
 		time.sleep(1.0)
 except KeyboardInterrupt:
 	run = False
-	while not uploader_stopped and not monitor_stopped:
+	while not sink_stopped and not source_stopped:
 		time.sleep(0.1)
 	
 	

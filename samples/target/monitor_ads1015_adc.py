@@ -131,13 +131,17 @@ def writer_routine (q, output_file_basename):
 			connected = True
 			while connected:
 				frame = q.get(block=True)
-				msg = msg + ",\n".join(map(str, frame[1]))
+				msg = msg + "\n".join(map(str, frame[1]))
 				try:
 					f.write(msg)
 					f.flush()
-					msg = ",\n"
+					msg = "\n"
 					saved += len(frame[1])
-					print("values saved: %d" % saved)
+					# print("values saved: %d" % saved)
+					if saved > 20000:
+						f.close()
+						connected = False
+						saved = 0
 				except Exception as e:
 					print(e)
 					time.sleep(1)
@@ -145,7 +149,6 @@ def writer_routine (q, output_file_basename):
 		except Exception as e:
 			print(e)
 			time.sleep(1)
-			connected = False
 	sink_stopped = True
 	print("writer_routine stopped")
 

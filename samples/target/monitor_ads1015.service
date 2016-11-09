@@ -1,0 +1,14 @@
+[Unit]
+Description=My Daemon
+After=bluetooth.target
+Before=systemd-user-sessions.service
+
+[Service]
+Type=simple
+RemainAfterExit=no
+ExecStart=/home/root/start_monitor.sh
+Environment="HOME=/home/root"
+WorkingDirectory=/home/root/
+
+[Install]
+WantedBy=multi-user.target

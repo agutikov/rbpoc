@@ -15,7 +15,7 @@ echo 3 > /sys/bus/i2c/drivers/ads1015_adc/1-0048/ads1015_adc_config/rate
 
 
 # ./monitor_ads1015_adc.py $HOST $PORT
-./monitor_ads1015_adc.py ./data/samples
+python ./monitor_ads1015_adc.py ./data/samples
 
 
 

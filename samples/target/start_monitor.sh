@@ -9,7 +9,7 @@ insmod ./ads1015_adc.ko
 echo ads1015_adc 0x48 > /sys/bus/i2c/devices/i2c-1/new_device
 
 echo 6 > /sys/bus/i2c/drivers/ads1015_adc/1-0048/ads1015_adc_config/channel
-echo 1 > /sys/bus/i2c/drivers/ads1015_adc/1-0048/ads1015_adc_config/gain
+echo 0 > /sys/bus/i2c/drivers/ads1015_adc/1-0048/ads1015_adc_config/gain
 echo 3 > /sys/bus/i2c/drivers/ads1015_adc/1-0048/ads1015_adc_config/rate
 
 

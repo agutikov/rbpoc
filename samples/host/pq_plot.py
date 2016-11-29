@@ -15,6 +15,18 @@ colnames = ['value']
 data = pandas.read_csv(filename, names=colnames)
 values = data['value']
 
+# adc shift
+values /= 16
+
+#adc gain
+values /= 2/3
+
+# amp gain
+values /= 1100
+
+
+
+
 
 matplotlib.style.use('ggplot')
 

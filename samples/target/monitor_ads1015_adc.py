@@ -46,7 +46,8 @@ source_stopped = False
 sink_stopped = False
 
 
-def monitor_thread_routine (q):
+def monitor_thread_routine ():
+	global frame_queue
 	global source_stopped
 	global run
 	print("monitor_thread_routine started")
@@ -60,13 +61,13 @@ def monitor_thread_routine (q):
 					frame = get_frame(adc_file)
 	#				pprint(frame)
 					if len(frame) == 2:
-						q.put(frame)
-	#				print(q.qsize())
-					if q.qsize() > 100:
-						print("queue size %d - drop frames" % q.qsize())
-						while q.qsize() > 50:
-							q.get(block=False)
-						print("queue size %d" % q.qsize())
+						frame_queue.put(frame)
+	#				print(frame_queue.qsize())
+					if frame_queue.qsize() > 100:
+						print("queue size %d - drop frames" % frame_queue.qsize())
+						while frame_queue.qsize() > 50:
+							frame_queue.get(block=False)
+						print("queue size %d" % frame_queue.qsize())
 					else:
 						time.sleep(0.2)
 		except IOError, err:
@@ -77,15 +78,17 @@ def monitor_thread_routine (q):
 	source_stopped = True
 	print("monitor_thread_routine stopped")
 
-'''
-HOST = sys.argv[1]
-PORT = int(sys.argv[2])
 
-print("host:port == %s:%d" % (HOST, PORT))
 
-def uploader_routine (q, host_port):
+def uploader_routine ():
+	global frame_queue
 	global run
 	global sink_stopped
+	
+	HOST = sys.argv[1]
+	PORT = int(sys.argv[2])
+	print("host:port == %s:%d" % (HOST, PORT))
+
 	sended = 0
 	print("uploader_routine started")
 	while run:
@@ -98,7 +101,7 @@ def uploader_routine (q, host_port):
 			print("not connected")
 			connected = False
 		while connected:
-			frame = q.get(block=True)
+			frame = frame_queue.get(block=True)
 			msg = json.dumps(frame) + "\n"
 #			print(msg)
 			try:
@@ -110,17 +113,20 @@ def uploader_routine (q, host_port):
 				connected = False
 	sink_stopped = True
 	print("uploader_routine stopped")
-'''
 
-if len(sys.argv) > 1:
-	output_file_basename = sys.argv[1]
-else:
-	output_file_basename = "./output"
 
-def writer_routine (q, output_file_basename):
+def writer_routine ():
+	global frame_queue
 	global run
 	global sink_stopped
+
+	if len(sys.argv) == 2:
+		output_file_basename = sys.argv[1]
+	else:
+		output_file_basename = "./output"
+		
 	saved = 0
+	
 	print("writer_routine started")
 	while run:
 		try:
@@ -130,7 +136,7 @@ def writer_routine (q, output_file_basename):
 			msg = ""
 			connected = True
 			while connected:
-				frame = q.get(block=True)
+				frame = frame_queue.get(block=True)
 				msg = msg + "\n".join(map(str, frame[1]))
 				try:
 					f.write(msg)
@@ -138,7 +144,7 @@ def writer_routine (q, output_file_basename):
 					msg = "\n"
 					saved += len(frame[1])
 					# print("values saved: %d" % saved)
-					if saved > 20000:
+					if saved > 60*920:
 						f.close()
 						connected = False
 						saved = 0
@@ -155,9 +161,12 @@ def writer_routine (q, output_file_basename):
 
 
 try:
-	thread.start_new_thread( monitor_thread_routine, (frame_queue, ) )
-	print("source thread started")	
-	thread.start_new_thread( writer_routine, (frame_queue, output_file_basename) )
+	thread.start_new_thread( monitor_thread_routine )
+	print("source thread started")
+	if len(sys.argv) == 3:
+		thread.start_new_thread( uploader_routine )
+	else:
+		thread.start_new_thread( writer_routine )
 	print("sink thread started")	
 except:
 	print "Error: unable to start thread"
